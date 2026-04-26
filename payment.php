@@ -1,6 +1,5 @@
 <?php
 include('exchange/account/connection.php');
-include('exchange/account/function.php');
 
 $registrationFeeUsd = 750.00;
 
