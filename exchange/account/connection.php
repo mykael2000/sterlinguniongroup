@@ -2,10 +2,10 @@
 // Database connection (Change credentials accordingly)
         $servername = "localhost";
         //$username = "dualstre_Prime Jarvis";
-        $username = "prim_primebro";
-        $password = "PJSfdsr25353@";
+        $username = "dualxtra_sterlingunion";
+        $password = "HhtUW5eXNKZATZaJ75Lk";
         //$dbname = "dualstre_Prime Jarvis";
-        $dbname = "prim_primebro";
+        $dbname = "dualxtra_sterlingunion";
 
         $conn = new mysqli($servername, $username, $password, $dbname);
         // if($conn){
