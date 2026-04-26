@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="assets/css/vendor/flaticon_finwise.css">
     <link rel="stylesheet" href="assets/css/vendor/spacing.css">
     <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/premium-invest.css">
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css">
 	<script>
     function googleTranslateElementInit() {
@@ -44,18 +45,12 @@
 <style>
     a {
         text-decoration: none;
-        /* Remove underline */
-        color: inherit;
-        /* Inherit color from parent */
     }
 
     a:hover {
         text-decoration: none;
-        /* Ensure no underline on hover */
-        color: inherit;
-        /* Maintain inherited color on hover */
     }
-  
+
 </style>
 
 <style>
@@ -126,36 +121,36 @@
     .accordion-button:not(.collapsed) .fi-rr-angle-up {
         display: inline;
     }
-    /* Style accordion button text and icons white */
-.accordion-button,
-.accordion-button i {
+    /* Legacy accordion theme styles are opt-in only */
+    .legacy-accordion .accordion-button,
+    .legacy-accordion .accordion-button i {
   color: white !important;
 }
 
 /* When accordion button is collapsed (closed), you can also style it if needed */
-.accordion-button.collapsed {
+    .legacy-accordion .accordion-button.collapsed {
   color: white !important;
 }
 
 /* Style the accordion body text */
-.accordion-body {
+    .legacy-accordion .accordion-body {
   color: white;
   background-color: transparent; /* Keep as needed or choose a dark bg */
 }
 
 /* Optional: add background or border */
-.accordion-item {
+    .legacy-accordion .accordion-item {
   border-color: #60e336; /* Green border as per your FAQ's green accent */
   background-color: #222; /* Dark background for contrast */
 }
 
 /* Remove default button background to rely on item bg for better consistency */
-.accordion-button {
+    .legacy-accordion .accordion-button {
   background-color: transparent;
 }
 
 /* Optional: Add padding or margin tweaks as needed */
-.accordion-button {
+    .legacy-accordion .accordion-button {
   padding-left: 1rem; 
   padding-right: 1rem;
 }
@@ -407,15 +402,15 @@
                             <div class="main-menu main-menu-4">
                                 <nav id="mobile-menu">
                                     <ul class="onepage-menu">
-                                       <li>
+                                      <li>
                                           <a href="register.php" class="d-inline-flex align-items-center">
-                                              Buy Crypto
+                                              Invest Now
                                               <span style="width: auto" class="badge text-bg-danger rounded-pill ms-1 text-uppercase px-2 py-1 fs-6">NEW</span>
                                           </a>
                                       </li>
                                       
                                       <li>
-                                            <a href="register.php">Market Plans</a>
+                                            <a href="register.php">Strategies</a>
                                         </li>
                                         <li>
                                             <a href="index.php">Home</a>
@@ -424,7 +419,7 @@
                                         <li><a href="about.php">About Us</a>
                                         </li>
 
-                                        <li><a href="faq.php">faq</a>
+                                        <li><a href="faq.php">FAQ</a>
                                         </li>
 
                                         <li><a href="contact.php">Contact</a>

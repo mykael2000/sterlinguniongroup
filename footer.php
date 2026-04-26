@@ -1,20 +1,41 @@
 
-    <!-- Footer area start -->
-<footer>
-    <section class="footer__area-common">
-        <div class="container">
-
-            <div class="footer__bottom">
-                <div class="footer__copyright">
-                    <p>Copyright © 2025 Sterling Union Group| 
-                        <a href="terms.php" class="text-decoration-none">Terms of Use</a> | 
-                        <a href="policy.php" class="text-decoration-none">Privacy Policy</a>
-                    </p>
-                </div>
-
+<footer class="sip-footer">
+    <div class="container">
+        <div class="sip-footer-grid">
+            <div>
+                <h4>Sterling Union Group</h4>
+                <p class="mb-0">A sophisticated digital investment platform built for investors who value control, clarity, and consistent performance discipline.</p>
+            </div>
+            <div>
+                <h5>Company</h5>
+                <ul>
+                    <li><a href="index.php">Home</a></li>
+                    <li><a href="about.php">About</a></li>
+                    <li><a href="faq.php">FAQ</a></li>
+                    <li><a href="contact.php">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5>Legal</h5>
+                <ul>
+                    <li><a href="terms.php">Terms of Use</a></li>
+                    <li><a href="policy.php">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5>Support</h5>
+                <ul>
+                    <li><a href="mailto:support@sterlinguniongroup.com">support@sterlinguniongroup.com</a></li>
+                    <li>24/7 Assistance</li>
+                    <li>Salt Lake City, Utah</li>
+                </ul>
             </div>
         </div>
-    </section>
+        <div class="sip-footer-bottom">
+            <p class="mb-0">Copyright © 2026 Sterling Union Group. All rights reserved.</p>
+            <p class="mb-0">Built for modern, risk-aware investors.</p>
+        </div>
+    </div>
 </footer>
 <!-- Smartsupp Live Chat script -->
 <script type="text/javascript">
