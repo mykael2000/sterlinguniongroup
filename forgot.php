@@ -4,14 +4,10 @@ session_start();
 include("exchange/account/connection.php");
 
 $message = "";
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-use PHPMailer\PHPMailer\SMTP;
+require __DIR__ . '/aws/vendor/autoload.php';
 
-// Load PHPMailer classes
-require 'PHPMailer-master/src/PHPMailer.php';
-require 'PHPMailer-master/src/Exception.php';
-require 'PHPMailer-master/src/SMTP.php';
+use Aws\Ses\SesClient;
+use Aws\Exception\AwsException;
 
 if (isset($_POST['reset'])) {
     $email = trim($_POST['email']);
@@ -38,36 +34,46 @@ if (isset($_POST['reset'])) {
         $insertStmt->bind_param("issss", $userId, $token, $expiry, $token, $expiry);
         $insertStmt->execute();
 
-        // Prepare the email
-        $mail = new PHPMailer(true);
         try {
-            // Server settings
-            $mail->isSMTP();
-            $mail->Host = 'smtp.zoho.com'; // Set your SMTP server
-            $mail->SMTPAuth = true;
-            $mail->Username = 'support@sterlinguniongroup.com'; // SMTP username
-            $mail->Password = 'sfS53@dgxds';     // SMTP password
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587; // TCP port to connect to
+                        $awsAccessKeyId = getenv('AWS_ACCESS_KEY_ID');
+                        $awsSecretAccessKey = getenv('AWS_SECRET_ACCESS_KEY');
+                        $awsRegion = getenv('AWS_DEFAULT_REGION') ?: 'us-east-1';
 
-            // Recipients
-            $mail->setFrom('support@sterlinguniongroup.com', 'Sterling Union GroupExchange');
-            $mail->addAddress($email);
+                        if (empty($awsAccessKeyId) || empty($awsSecretAccessKey)) {
+                            throw new Exception('AWS SES credentials are not configured.');
+                        }
 
-            // Content
-            $mail->isHTML(true);
-            $mail->Subject = 'Password Reset Request';
-
-            $resetLink = "https://sterlinguniongroup.com/reset.php?token=$token";
-            $mail->Body = "<p>You requested a password reset. Click the link below to reset your password:</p>
+                        // Send via AWS SES
+                        $SesClient = new SesClient([
+                            'version'     => 'latest',
+                            'region'      => $awsRegion,
+                            'credentials' => [
+                                'key'    => $awsAccessKeyId,
+                                'secret' => $awsSecretAccessKey,
+                            ],
+                        ]);
+                        $htmlBody = "<p>You requested a password reset. Click the link below to reset your password:</p>
                            <p><a href='$resetLink'>$resetLink</a></p>
                            <p>This link will expire in 1 hour.</p>";
 
-            $mail->send();
-            $message = '<div class="bg-green-100 border-l-4 border-green-500 text-green-800 p-2 rounded-md shadow-sm">A password reset link has been sent to your email.</div>';
-        } catch (Exception $e) {
-            $message = '<div class="bg-red-100 border-l-4 border-red-500 text-red-800 p-2 rounded-md shadow-sm">Failed to send email: ' . htmlspecialchars($mail->ErrorInfo) . '</div>';
-        }
+                        $result = $SesClient->sendEmail([
+                            'Source' => 'support@sterlinguniongroup.com', // must be verified in SES
+                            'Destination' => [
+                                'ToAddresses' => [$email],
+                            ],
+                            'Message' => [
+                                'Subject' => ['Data' => 'Password Reset Request'],
+                                'Body' => [
+                                    'Html' => ['Data' => $htmlBody],
+                                ],
+                            ],
+                        ]);
+
+                        $message = '<div class="bg-green-100 border-l-4 border-green-500 text-green-800 p-2 rounded-md shadow-sm">A password reset link has been sent to your email.</div>';
+
+                    } catch (AwsException $e) {
+                        $message = '<div class="bg-red-100 border-l-4 border-red-500 text-red-800 p-2 rounded-md shadow-sm">Failed to send email: ' . htmlspecialchars($mail->ErrorInfo) . '</div>';
+                    }
     } else {
         // Generic message to prevent email enumeration
         $message = '<div class="bg-red-100 border-l-4 border-green-500 text-green-800 p-2 rounded-md shadow-sm">No user with this email was found.</div>';
