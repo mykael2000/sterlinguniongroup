@@ -25,6 +25,11 @@ $stmt_user->execute();
 $result_user = $stmt_user->get_result();
 $user = $result_user->fetch_assoc();
 
+if($user['registration_fee_paid'] == 0){
+    header("location: ../../payment.php"); 
+    exit();
+}
+
 $user_email = $user["email"];
 
 if (empty($user)) {
