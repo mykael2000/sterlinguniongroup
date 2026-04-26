@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Trading App</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Inter Font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <!-- Chart.js for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* dark background */
+        }
+        .scrollable-chat {
+            height: 300px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column-reverse;
+        }
+        .scrollbar-hidden::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 flex flex-col items-center min-h-screen p-4">
+
+    <script>
+        // Use a random ID to simulate a user session
+        const userId = 'user-' + Math.random().toString(36).substring(2, 8);
+        let currentCoin = null;
+        let myChart = null;
+
+        let coins = [
+            { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC', price: 68450.75, change: 1.5 },
+            { id: 'ethereum', name: 'Ethereum', symbol: 'ETH', price: 3450.22, change: -0.8 },
+            { id: 'ripple', name: 'Ripple', symbol: 'XRP', price: 0.65, change: 3.2 },
+            { id: 'litecoin', name: 'Litecoin', symbol: 'LTC', price: 120.30, change: 0.1 },
+            { id: 'cardano', name: 'Cardano', symbol: 'ADA', price: 0.45, change: 2.1 },
+        ];
+        
+        const chatData = {
+            'bitcoin': [
+                { userId: 'user-abc12', text: 'BTC is looking strong today!' },
+                { userId: userId, text: 'I agree, the momentum is bullish.' }
+            ],
+            'ethereum': [
+                { userId: 'user-def34', text: 'ETH is down, but I am holding.' }
+            ],
+        };
+
+        const tradeData = {
+            'bitcoin': [],
+            'ethereum': [],
+            'ripple': [],
+            'litecoin': [],
+            'cardano': [],
+        };
+        
+        // Wait for the DOM to be fully loaded before running the script
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('coin-modal');
+            const chatInput = document.getElementById('chat-input');
+            const chatForm = document.getElementById('chat-form');
+            const tradeForm = document.getElementById('trade-form');
+            const userIdDisplay = document.getElementById('user-id-display');
+            const tableBody = document.getElementById('coins-table-body');
+            const mainContent = document.getElementById('main-content');
+            
+            userIdDisplay.textContent = `Your ID: ${userId}`;
+            renderTable(coins);
+            mainContent.classList.remove('hidden');
+
+            function showModal(coin) {
+                currentCoin = coin;
+                modal.classList.remove('hidden');
+                document.getElementById('coin-modal-name').textContent = coin.name;
+                document.getElementById('coin-modal-price').textContent = `$${coin.price.toLocaleString()}`;
+                document.getElementById('trading-coin-name').textContent = coin.name;
+
+                renderChat(chatData[coin.id] || []);
+                renderChart(coin.id);
+            }
+
+            function closeModal() {
+                modal.classList.add('hidden');
+                if (myChart) {
+                    myChart.destroy();
+                    myChart = null;
+                }
+                document.getElementById('chat-messages').innerHTML = '';
+                document.getElementById('amount-input').value = '';
+                document.getElementById('price-input').value = '';
+            }
+            
+            function renderTable(coins) {
+                tableBody.innerHTML = '';
+                
+                coins.sort((a, b) => a.name.localeCompare(b.name));
+
+                coins.forEach((coin, index) => {
+                    const isPositive = parseFloat(coin.change) >= 0;
+                    const changeColor = isPositive ? 'text-green-400' : 'text-red-400';
+                    const arrowIcon = isPositive ? 'fa-arrow-up' : 'fa-arrow-down';
+                    
+                    const rowHtml = `
+                        <tr class="border-b border-gray-700 hover:bg-gray-800 transition-colors duration-200">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">${index + 1}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-coins text-yellow-400"></i>
+                                    <span class="font-medium text-white">${coin.name}</span>
+                                    <span class="text-gray-400 text-xs">${coin.symbol}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-lg font-semibold text-white">$${coin.price.toLocaleString()}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm ${changeColor}">
+                                <i class="fa-solid ${arrowIcon} mr-1"></i>${coin.change}%
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button class="trade-button py-2 px-4 rounded-full bg-indigo-600 hover:bg-indigo-700 transition-colors duration-200 text-white shadow-md" data-coin-id="${coin.id}">Trade</button>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += rowHtml;
+                });
+
+                document.querySelectorAll('.trade-button').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const coinId = e.target.dataset.coinId;
+                        const selectedCoin = coins.find(c => c.id === coinId);
+                        if (selectedCoin) {
+                            showModal(selectedCoin);
+                        }
+                    });
+                });
+            }
+            
+            function renderChat(messages) {
+                const chatMessagesContainer = document.getElementById('chat-messages');
+                chatMessagesContainer.innerHTML = '';
+                messages.forEach(msg => {
+                    const isCurrentUser = msg.userId === userId;
+                    const alignment = isCurrentUser ? 'justify-end' : 'justify-start';
+                    const messageColor = isCurrentUser ? 'bg-indigo-600' : 'bg-gray-700';
+                    
+                    const messageHtml = `
+                        <div class="flex ${alignment} mb-2">
+                            <div class="${messageColor} text-sm text-white p-3 rounded-xl max-w-[70%] shadow-md">
+                                <span class="font-bold text-xs block mb-1">${isCurrentUser ? 'You' : msg.userId.substring(0, 8)}</span>
+                                ${msg.text}
+                            </div>
+                        </div>
+                    `;
+                    chatMessagesContainer.innerHTML += messageHtml;
+                });
+                chatMessagesContainer.parentElement.scrollTop = chatMessagesContainer.parentElement.scrollHeight;
+            }
+
+            chatForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const text = chatInput.value.trim();
+                if (text && currentCoin && userId) {
+                    if (!chatData[currentCoin.id]) {
+                        chatData[currentCoin.id] = [];
+                    }
+                    chatData[currentCoin.id].push({ userId: userId, text: text });
+                    renderChat(chatData[currentCoin.id]);
+                    chatInput.value = '';
+                }
+            });
+            
+            tradeForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const amountInput = document.getElementById('amount-input');
+                const priceInput = document.getElementById('price-input');
+                const type = e.submitter.dataset.type;
+                
+                const amount = parseFloat(amountInput.value);
+                const price = parseFloat(priceInput.value);
+                
+                if (isNaN(amount) || isNaN(price) || amount <= 0 || price <= 0) {
+                     const messageElement = document.getElementById('trade-message');
+                     messageElement.textContent = "Please enter a valid amount and price.";
+                     messageElement.className = 'mt-4 text-center font-semibold text-red-400';
+                    return;
+                }
+
+                if (currentCoin && userId) {
+                    if (!tradeData[currentCoin.id]) {
+                        tradeData[currentCoin.id] = [];
+                    }
+                    tradeData[currentCoin.id].push({ userId: userId, type: type, amount: amount, price: price });
+                    
+                    const messageElement = document.getElementById('trade-message');
+                    messageElement.textContent = `Trade placed successfully: ${type.toUpperCase()} ${amount} ${currentCoin.symbol} @ $${price}`;
+                    messageElement.className = 'mt-4 text-center font-semibold text-green-400';
+                    
+                    setTimeout(() => {
+                        messageElement.textContent = '';
+                    }, 3000);
+                    
+                    amountInput.value = '';
+                    priceInput.value = '';
+                }
+            });
+
+            function generateMockChartData() {
+                const dataPoints = 50;
+                const labels = Array.from({ length: dataPoints }, (_, i) => `${i + 1}h ago`);
+                const data = Array.from({ length: dataPoints }, (_, i) => Math.floor(Math.random() * (200 - 100 + 1)) + 100);
+                return { labels, data };
+            }
+
+            function renderChart(coinId) {
+                const chartCanvas = document.getElementById('price-chart');
+                const chartData = generateMockChartData();
+
+                if (myChart) {
+                    myChart.destroy();
+                }
+
+                myChart = new Chart(chartCanvas, {
+                    type: 'line',
+                    data: {
+                        labels: chartData.labels,
+                        datasets: [{
+                            label: 'Price (USD)',
+                            data: chartData.data,
+                            borderColor: '#818cf8',
+                            backgroundColor: 'rgba(129, 140, 248, 0.2)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                bodyFont: {
+                                    size: 14
+                                },
+                                titleFont: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    display: false
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    color: 'rgba(107, 114, 128, 0.2)'
+                                },
+                                ticks: {
+                                    color: '#d1d5db'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            document.getElementById('close-modal').addEventListener('click', closeModal);
+            document.getElementById('backdrop').addEventListener('click', closeModal);
+        });
+    </script>
+
+    <div id="main-content" class="w-full">
+        <!-- Navigation Bar -->
+        <nav class="w-full bg-gray-900 shadow-md mb-8 py-4 px-6 fixed top-0 left-0 right-0 z-50">
+            <div class="flex items-center justify-end">
+                <div class="space-x-6 text-sm font-medium">
+                    <a href="#" class="text-gray-300 hover:text-indigo-400 transition-colors duration-200">
+                        <i class="fa-solid fa-user-circle mr-2"></i>Profile Settings
+                    </a>
+                    <a href="#" class="text-gray-300 hover:text-indigo-400 transition-colors duration-200">
+                        <i class="fa-solid fa-shield-alt mr-2"></i>Security Settings
+                    </a>
+                    <a href="#" class="text-gray-300 hover:text-indigo-400 transition-colors duration-200">
+                        <i class="fa-solid fa-arrow-up mr-2"></i>Account Upgrade
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="w-full max-w-4xl mx-auto text-center mt-24 mb-8">
+            <h1 class="text-4xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">Crypto Dashboard</h1>
+            <p class="text-gray-400">Tap on a coin to view details, chart, chat with other traders, and place a trade.</p>
+            <p id="user-id-display" class="text-xs text-gray-500 mt-2"></p>
+        </div>
+        
+        <!-- Main Content Table -->
+        <div class="w-full max-w-7xl mx-auto overflow-x-auto rounded-xl">
+            <table class="min-w-full divide-y divide-gray-700 bg-gray-800 shadow-lg">
+                <thead class="bg-gray-700">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider rounded-tl-xl">#</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Name</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Price</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">24h Change</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider rounded-tr-xl">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="coins-table-body" class="divide-y divide-gray-700">
+                    <!-- Table rows will be dynamically generated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- News & Insights Section -->
+        <div class="w-full max-w-7xl mx-auto mt-12">
+            <h2 class="text-3xl font-bold mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">Crypto News & Insights</h2>
+            <div class="flex flex-col lg:flex-row space-y-6 lg:space-y-0 lg:space-x-6">
+                <!-- Latest News Column -->
+                <div class="flex-1 bg-gray-800 rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-200">Latest News</h3>
+                    <div class="space-y-4">
+                        <div class="bg-gray-700 p-4 rounded-xl shadow-md transition-shadow duration-200 hover:shadow-lg cursor-pointer">
+                            <h4 class="font-bold text-gray-100">Bitcoin Breaks All-Time Highs Again</h4>
+                            <p class="text-sm text-gray-400 mt-1">Experts are cautiously optimistic about Bitcoin's momentum, citing institutional adoption and market stability as key drivers.</p>
+                            <a href="#" class="text-xs text-indigo-400 hover:underline mt-2 inline-block">Read more &rarr;</a>
+                        </div>
+                        <div class="bg-gray-700 p-4 rounded-xl shadow-md transition-shadow duration-200 hover:shadow-lg cursor-pointer">
+                            <h4 class="font-bold text-gray-100">Ethereum's Latest Upgrade Promises Faster Transactions</h4>
+                            <p class="text-sm text-gray-400 mt-1">The new protocol, named 'Serenity,' aims to significantly reduce network congestion and gas fees for all users.</p>
+                            <a href="#" class="text-xs text-indigo-400 hover:underline mt-2 inline-block">Read more &rarr;</a>
+                        </div>
+                        <div class="bg-gray-700 p-4 rounded-xl shadow-md transition-shadow duration-200 hover:shadow-lg cursor-pointer">
+                            <h4 class="font-bold text-gray-100">NFT Market Rebounds with a Surge in Volume</h4>
+                            <p class="text-sm text-gray-400 mt-1">After a quiet period, the NFT space is seeing renewed interest, particularly in gaming and digital art collectibles.</p>
+                            <a href="#" class="text-xs text-indigo-400 hover:underline mt-2 inline-block">Read more &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Market Insights Column -->
+                <div class="flex-1 bg-gray-800 rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-200">Market Insights</h3>
+                    <div class="space-y-4">
+                        <div class="bg-gray-700 p-4 rounded-xl shadow-md flex items-center space-x-4">
+                            <div class="text-yellow-400 text-2xl"><i class="fa-solid fa-fire"></i></div>
+                            <div>
+                                <h4 class="font-bold text-gray-100">Trending Search: Dogecoin</h4>
+                                <p class="text-sm text-gray-400">Retail interest in memecoins is on the rise, with DOGE leading the pack this week.</p>
+                            </div>
+                        </div>
+                        <div class="bg-gray-700 p-4 rounded-xl shadow-md flex items-center space-x-4">
+                            <div class="text-purple-400 text-2xl"><i class="fa-solid fa-chart-line"></i></div>
+                            <div>
+                                <h4 class="font-bold text-gray-100">Volatility Index: Moderate</h4>
+                                <p class="text-sm text-gray-400">The overall market is showing steady movements with fewer dramatic price swings.</p>
+                            </div>
+                        </div>
+                        <div class="bg-gray-700 p-4 rounded-xl shadow-md flex items-center space-x-4">
+                            <div class="text-green-400 text-2xl"><i class="fa-solid fa-shield-halved"></i></div>
+                            <div>
+                                <h4 class="font-bold text-gray-100">Investor Sentiment: Bullish</h4>
+                                <p class="text-sm text-gray-400">Most analysts and retail traders are feeling optimistic about the market's future.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for Coin Details, Chat, and Trading -->
+        <div id="coin-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+            <!-- Backdrop -->
+            <div id="backdrop" class="fixed inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-sm"></div>
+
+            <!-- Modal Content -->
+            <div id="modal-content" class="bg-gray-800 rounded-3xl p-6 sm:p-8 w-full max-w-4xl h-full sm:h-auto max-h-[90vh] relative z-10 shadow-2xl flex flex-col sm:flex-row space-y-6 sm:space-y-0 sm:space-x-8 overflow-hidden">
+                <!-- Close Button -->
+                <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-100 transition-colors duration-200 focus:outline-none">
+                    <i class="fa-solid fa-times fa-lg"></i>
+                </button>
+                
+                <!-- Details and Trading Column -->
+                <div class="flex-1 flex flex-col p-4 sm:p-0">
+                    <div class="text-center sm:text-left mb-6">
+                        <h2 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600 mb-2" id="coin-modal-name"></h2>
+                        <p class="text-lg text-gray-300" id="coin-modal-price"></p>
+                    </div>
+                    
+                    <!-- Chart Area -->
+                    <div class="bg-gray-900 rounded-xl p-6 mb-6 shadow-inner flex-grow">
+                        <h3 class="text-xl font-semibold mb-4 text-center text-gray-200">Price Chart</h3>
+                        <div class="h-48">
+                            <canvas id="price-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Trading Area -->
+                    <div class="bg-gray-900 rounded-xl p-6 shadow-inner flex-grow">
+                        <h3 class="text-xl font-semibold mb-4 text-center text-gray-200">Place a Trade for <span id="trading-coin-name" class="font-bold"></span></h3>
+                        <form id="trade-form" class="space-y-4">
+                            <div>
+                                <label for="amount-input" class="block text-sm font-medium text-gray-400">Amount</label>
+                                <input type="number" id="amount-input" step="0.001" placeholder="e.g., 0.5" class="mt-1 block w-full rounded-lg border-transparent bg-gray-700 text-white focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                            </div>
+                            <div>
+                                <label for="price-input" class="block text-sm font-medium text-gray-400">Price (USD)</label>
+                                <input type="number" id="price-input" step="0.01" placeholder="e.g., 68500" class="mt-1 block w-full rounded-lg border-transparent bg-gray-700 text-white focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                            </div>
+                            <div class="flex space-x-4 pt-2">
+                                <button type="submit" data-type="buy" class="flex-1 py-3 px-4 rounded-xl font-bold text-lg text-white bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 transition-all duration-300 transform hover:scale-105 shadow-md">Buy</button>
+                                <button type="submit" data-type="sell" class="flex-1 py-3 px-4 rounded-xl font-bold text-lg text-white bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 transition-all duration-300 transform hover:scale-105 shadow-md">Sell</button>
+                            </div>
+                        </form>
+                        <p id="trade-message" class="mt-4 text-center font-semibold"></p>
+                    </div>
+                </div>
+
+                <!-- Chat Column -->
+                <div class="flex-1 flex flex-col p-4 sm:p-0">
+                    <h3 class="text-xl font-semibold mb-4 text-center text-gray-200">Live Chat</h3>
+                    <div class="flex-grow bg-gray-900 rounded-xl p-4 shadow-inner overflow-hidden">
+                        <div id="chat-messages" class="scrollable-chat scrollbar-hidden space-y-3">
+                            <!-- Chat messages will be rendered here -->
+                        </div>
+                    </div>
+                    <!-- Chat Input Form -->
+                    <form id="chat-form" class="mt-4 flex space-x-2">
+                        <input type="text" id="chat-input" placeholder="Type your message..." class="flex-grow py-2 px-4 rounded-full border-transparent bg-gray-700 text-white focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 transition-colors duration-200 rounded-full w-12 h-12 flex items-center justify-center text-white shadow-md">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
