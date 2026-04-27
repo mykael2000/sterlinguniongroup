@@ -482,6 +482,103 @@ h6,
   }
 }
 
+/* Card icons */
+.sip-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, rgba(19, 146, 143, 0.16), rgba(198, 148, 58, 0.12));
+  border-radius: 14px;
+  margin-bottom: 12px;
+  font-size: 24px;
+  color: var(--sip-primary);
+}
+
+.sip-card-icon-inline {
+  float: left;
+  margin-right: 14px;
+  margin-bottom: 8px;
+  width: 44px;
+  height: 44px;
+  font-size: 18px;
+}
+
+/* CTA section */
+.sip-cta-section {
+  background: linear-gradient(135deg, rgba(19, 146, 143, 0.08), rgba(198, 148, 58, 0.06));
+  border: 1px solid rgba(19, 146, 143, 0.16);
+  border-radius: 24px;
+  margin: 80px 0;
+}
+
+.sip-cta-block {
+  text-align: center;
+  padding: 60px 40px;
+}
+
+.sip-cta-block h2 {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  margin-bottom: 14px;
+  color: #ffffff;
+}
+
+.sip-cta-block p {
+  font-size: 1.1rem;
+  color: #d2e4f2;
+  max-width: 600px;
+  margin: 0 auto 28px;
+}
+
+/* Live chat widget badge */
+.sip-chat-badge {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: linear-gradient(135deg, var(--sip-primary), var(--sip-primary-2));
+  border-radius: 16px;
+  padding: 14px 16px;
+  box-shadow: 0 12px 32px rgba(0, 109, 119, 0.28);
+  cursor: pointer;
+  z-index: 999;
+  transition: all 0.3s ease;
+  max-width: 280px;
+}
+
+.sip-chat-badge:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0, 109, 119, 0.36);
+}
+
+.sip-chat-badge-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: #ffffff;
+}
+
+.sip-chat-badge-content i {
+  font-size: 20px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.sip-chat-badge-content span {
+  display: block;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.sip-chat-badge-content p {
+  display: block;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+  line-height: 1.2;
+}
+
 @media (max-width: 1199px) {
   .sip-card-grid,
   .sip-footer-grid {
@@ -509,5 +606,20 @@ h6,
   .sip-contact-wrap,
   .sip-faq-wrap {
     padding: 20px;
+  }
+
+  .sip-chat-badge {
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 14px;
+    max-width: 260px;
+  }
+
+  .sip-cta-block {
+    padding: 40px 20px;
+  }
+
+  .sip-cta-block h2 {
+    font-size: 1.6rem;
   }
 }

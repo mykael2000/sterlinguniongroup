@@ -41,12 +41,32 @@
 <script type="text/javascript">
 var _smartsupp = _smartsupp || {};
 _smartsupp.key = '125bebc9d02572792ba63a6cca13a29bf2505bdb';
+// Customize Smartsupp widget
+_smartsupp.hideButtonOnChat = false;
+_smartsupp.align = 'right';
+_smartsupp.backgroundColor = '#006d77';
+_smartsupp.shadow = true;
+
 window.smartsupp||(function(d) {
   var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
   s=d.getElementsByTagName('script')[0];c=d.createElement('script');
   c.type='text/javascript';c.charset='utf-8';c.async=true;
   c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
 })(document);
+
+// Click handler for chat badge
+document.addEventListener('DOMContentLoaded', function() {
+  var chatBadge = document.querySelector('.sip-chat-badge');
+  if (chatBadge) {
+    chatBadge.addEventListener('click', function(e) {
+      e.preventDefault();
+      // Trigger Smartsupp chat window
+      if (typeof window.smartsupp === 'function') {
+        window.smartsupp('openChat');
+      }
+    });
+  }
+});
 </script>
 <noscript>Powered by <a href="https://www.smartsupp.com" target="_blank">Smartsupp</a></noscript>
 
