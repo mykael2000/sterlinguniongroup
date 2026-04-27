@@ -1,4 +1,5 @@
 <?php
+include("../../.env");
 // Database connection (Change credentials accordingly)
         $servername = "localhost";
         //$username = "dualstre_Prime Jarvis";
