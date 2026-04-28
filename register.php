@@ -110,7 +110,7 @@ if (isset($_POST['register'])) {
                     <body style='background-color: #1e2024; padding: 45px;'>
                         <div>
                             <img style='position:relative; left:35%; border-radius: 50%; height: 100px; width: 100px;' src='https://sterlinguniongroup.com/logo.jpg'>
-                            <h3 style='color: black;'>Mail From support@sterlinguniongroup.com - Successful Registration</h3>
+                            <h3 style='color: black;'>Mail From noreply@sterlinguniongroup.com - Successful Registration</h3>
                         </div>
                         <div style='color: #fff;'>
                             <h3>Dear $firstname,</h3>
