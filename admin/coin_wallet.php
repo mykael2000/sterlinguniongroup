@@ -20,7 +20,7 @@ if (isset($_POST['update_address'])) {
 
         $update_sql = "UPDATE coin_wallet SET address = ?, qrcode = ?, amount = ? WHERE id = ?";
         $stmt = mysqli_prepare($conn, $update_sql);
-        mysqli_stmt_bind_param($stmt, "ssi", $new_address, $new_qrcode_url, $amount, $coin_id);
+        mysqli_stmt_bind_param($stmt, "sssi", $new_address, $new_qrcode_url, $amount, $coin_id);
         
         if (mysqli_stmt_execute($stmt)) {
             $message = '<div class="alert alert-success d-flex align-items-center" role="alert">
