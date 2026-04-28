@@ -7,6 +7,7 @@ $message = "";
 if (isset($_POST['update_address'])) {
     $coin_id = $_POST['coin_id'];
     $new_address = mysqli_real_escape_string($conn, $_POST['new_address']);
+    $amount = $_POST['amount'];
 
     // Validate coin_id is one of the allowed IDs
     if (!in_array($coin_id, ['1', '2', '3'])) {
@@ -17,9 +18,9 @@ if (isset($_POST['update_address'])) {
         // Generate QR code URL
         $new_qrcode_url = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" . urlencode($new_address);
 
-        $update_sql = "UPDATE coin_wallet SET address = ?, qrcode = ? WHERE id = ?";
+        $update_sql = "UPDATE coin_wallet SET address = ?, qrcode = ?, amount = ? WHERE id = ?";
         $stmt = mysqli_prepare($conn, $update_sql);
-        mysqli_stmt_bind_param($stmt, "ssi", $new_address, $new_qrcode_url, $coin_id);
+        mysqli_stmt_bind_param($stmt, "ssi", $new_address, $new_qrcode_url, $amount, $coin_id);
         
         if (mysqli_stmt_execute($stmt)) {
             $message = '<div class="alert alert-success d-flex align-items-center" role="alert">
@@ -35,7 +36,7 @@ if (isset($_POST['update_address'])) {
 }
 
 // Fetch only the wallets with IDs 1, 2, and 3
-$wallets_sql = "SELECT id, coin, network, address, qrcode FROM coin_wallet WHERE id IN (1, 2, 3) ORDER BY id ASC";
+$wallets_sql = "SELECT id, coin, network, address, qrcode, amount FROM coin_wallet WHERE id IN (1, 2, 3) ORDER BY id ASC";
 $wallets_query = mysqli_query($conn, $wallets_sql);
 $wallets = mysqli_fetch_all($wallets_query, MYSQLI_ASSOC);
 
@@ -75,7 +76,12 @@ mysqli_close($conn);
                                 <label>Current Address</label>
                                 <input type="text" class="form-control" value="<?php echo htmlspecialchars($wallet['address']); ?>" readonly>
                             </div>
-                            
+                            <h4 class="text-center">Update Amount</h4>
+                            <div class="form-group">
+                                <label>Current Amount</label>
+                                <input type="text" name="amount" class="form-control" value="<?php echo htmlspecialchars($wallet['amount']); ?>">
+                            </div>
+
                             <hr>
                             <h4 class="text-center">Update Address</h4>
                             <div class="form-group">

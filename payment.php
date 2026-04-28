@@ -1,7 +1,7 @@
 <?php
 include('exchange/account/connection.php');
 
-$registrationFeeUsd = 750.00;
+
 
 $BTC = 1;
 $BTCsql = "SELECT * FROM coin_wallet WHERE id = '$BTC'";
@@ -17,6 +17,13 @@ $USDT = 3;
 $USDTsql = "SELECT * FROM coin_wallet WHERE id = '$USDT'";
 $USDTquery = mysqli_query($conn, $USDTsql);
 $USDTfetch = mysqli_fetch_array($USDTquery);
+
+$AMOUNT = 4;
+$AMOUNTsql = "SELECT * FROM coin_wallet WHERE id = '$AMOUNT'";
+$AMOUNTquery = mysqli_query($conn, $AMOUNTsql);
+$AMOUNTfetch = mysqli_fetch_array($AMOUNTquery);
+
+$registrationFeeUsd = $AMOUNTfetch['amount'];
 ?>
 <!DOCTYPE html>
 <html lang="en">

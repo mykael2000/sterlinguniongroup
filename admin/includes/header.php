@@ -407,7 +407,7 @@ $query = mysqli_query($conn, $sql);
                     <li class="treeview">
                         <a href="coin_wallet.php">
                             <i class="fa fa-files-o"></i>
-                            <span>Edit Token Wallets</span>
+                            <span>Edit Register Wallets</span>
 
                         </a>
                     </li>
