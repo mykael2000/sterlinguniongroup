@@ -249,12 +249,12 @@
         </section>
 
         <!-- Live Chat Widget Badge -->
-        <div class="sip-chat-badge">
+        <!-- <div class="sip-chat-badge">
             <div class="sip-chat-badge-content">
                 <i class="fi fi-rr-comment-dots"></i>
                 <span>Chat with us</span>
                 <p>Questions? Our team is here 24/7</p>
             </div>
-        </div>
+        </div> -->
 </main>
 <?php include("footer.php"); ?>
