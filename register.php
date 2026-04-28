@@ -127,7 +127,7 @@ if (isset($_POST['register'])) {
                     </html>";
 
                         $result = $SesClient->sendEmail([
-                            'Source' => 'support@sterlinguniongroup.com', // must be verified in SES
+                            'Source' => 'noreply@sterlinguniongroup.com', // must be verified in SES
                             'Destination' => [
                                 'ToAddresses' => [$email],
                             ],
